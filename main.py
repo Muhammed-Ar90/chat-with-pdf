@@ -5,6 +5,8 @@ from pydantic import BaseModel
 from ingest import extract_text_from_pdf, split_into_chunks, embed_chunks, store_in_chromadb
 from query import ask
 
+os.makedirs("uploads", exist_ok=True)
+
 app = FastAPI()
 
 app.add_middleware(
