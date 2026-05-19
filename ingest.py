@@ -1,3 +1,5 @@
+import os
+import requests
 import fitz  # this is PyMuPDF
 from sentence_transformers import SentenceTransformer
 import chromadb
@@ -63,20 +65,21 @@ def split_into_chunks(pages: list, chunk_size: int = 1000, overlap: int = 200) -
 
 
 # load the model once (outside the function so it doesn't reload every time)
-embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+#embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+HF_API_KEY = os.getenv("HF_API_KEY")
+HF_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
+
+def get_embedding(text: str) -> list:
+    response = requests.post(
+        HF_URL,
+        headers={"Authorization": f"Bearer {HF_API_KEY}"},
+        json={"inputs": text, "options": {"wait_for_model": True}}
+    )
+    return response.json()
 
 def embed_chunks(chunks: list) -> list:
-    """
-    Takes chunks and adds an embedding (list of numbers) to each one.
-    Returns the same chunks but with an 'embedding' field added.
-    """
-    texts = [chunk["text"] for chunk in chunks]  # extract just the text from each chunk
-
-    embeddings = embedding_model.encode(texts)    # convert all texts to numbers at once
-
-    for i, chunk in enumerate(chunks):
-        chunk["embedding"] = embeddings[i].tolist()  # add embedding to each chunk
-
+    for chunk in chunks:
+        chunk["embedding"] = get_embedding(chunk["text"])
     return chunks
 
 

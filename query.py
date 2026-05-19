@@ -7,20 +7,23 @@ from sentence_transformers import SentenceTransformer
 load_dotenv()
 
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+#embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
 
+HF_API_KEY = os.getenv("HF_API_KEY")
+HF_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
 
-
+def get_embedding(text: str) -> list:
+    response = requests.post(
+        HF_URL,
+        headers={"Authorization": f"Bearer {HF_API_KEY}"},
+        json={"inputs": text, "options": {"wait_for_model": True}}
+    )
+    return response.json()
 
 def get_relevant_chunks(question: str, collection_name: str, n_results: int = 3) -> list:
-    """
-    Embeds the question and searches ChromaDB for similar chunks.
-     Searches a specific collection in ChromaDB.
-    """
     collection = chroma_client.get_or_create_collection(name=collection_name)
-
-    question_embedding = embedding_model.encode(question).tolist()
+    question_embedding = get_embedding(question)
 
     results = collection.query(
         query_embeddings=[question_embedding],
@@ -33,7 +36,6 @@ def get_relevant_chunks(question: str, collection_name: str, n_results: int = 3)
             "text": results["documents"][0][i],
             "page": results["metadatas"][0][i]["page"]
         })
-
     return chunks
 
 
