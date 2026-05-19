@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app {
+            display: flex;
+            gap: 16px;
+            width: 900px;
+            align-items: flex-start;
+        }
+
+        /* sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            width: 220px;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .pdf-list {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-height: 100px;
+        }
+
+        .pdf-item {
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #333;
+            border: 1px solid transparent;
+            word-break: break-word;
+        }
+
+        .pdf-item:hover {
+            background: #f5f5f5;
+        }
+
+        .pdf-item.active {
+            background: #e8f0fe;
+            color: #1a73e8;
+            border-color: #c5d9fb;
+        }
+
+        .pdf-item .pdf-name {
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .pdf-item .pdf-meta {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .pdf-item.active .pdf-meta {
+            color: #5a8dee;
+        }
+
+        .no-pdfs {
+            padding: 16px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+        }
+
+        /* main chat */
+        .container {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 14px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 500;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .active-pdf-label {
+            font-size: 12px;
+            color: #1a73e8;
+            background: #e8f0fe;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .upload-section {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .upload-box {
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .upload-box label {
+            cursor: pointer;
+            color: #555;
+            font-size: 13px;
+        }
+
+        .upload-box input {
+            display: none;
+        }
+
+        .upload-btn {
+            margin-top: 8px;
+            background: #e8f0fe;
+            color: #1a73e8;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .status {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .status.success { background: #e6f4ea; color: #2e7d32; display: block; }
+        .status.error   { background: #fce8e6; color: #c62828; display: block; }
+        .status.loading { background: #fff8e1; color: #f57f17; display: block; }
+
+        .chat-box {
+            padding: 16px 20px;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .empty-chat {
+            text-align: center;
+            color: #aaa;
+            font-size: 13px;
+            margin: auto;
+            padding: 40px 0;
+        }
+
+        .message {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .message.user { justify-content: flex-end; }
+
+        .bubble {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            max-width: 75%;
+            line-height: 1.5;
+        }
+
+        .user .bubble { background: #e8f0fe; color: #1a73e8; }
+        .bot  .bubble { background: #f5f5f5; color: #333; }
+
+        .sources {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .source-badge {
+            background: #eeeeee;
+            color: #666;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            flex-shrink: 0;
+            color: #666;
+        }
+
+        .input-section {
+            padding: 12px 16px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .input-section input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .input-section input:focus { border-color: #1a73e8; }
+
+        .send-btn {
+            background: #e8f0fe;
+            color: #1a73e8;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .send-btn:hover { background: #d2e3fc; }
+    </style>
+</head>
+<body>
+    <div class="app">
+
+        <!-- sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">📄 Uploaded PDFs</div>
+            <div class="pdf-list" id="pdf-list">
+                <div class="no-pdfs">No PDFs uploaded yet</div>
+            </div>
+        </div>
+
+        <!-- main chat -->
+        <div class="container">
+
+            <div class="header">
+                PDF Chat
+                <span class="active-pdf-label" id="active-label">No PDF selected</span>
+            </div>
+
+            <div class="upload-section">
+                <div class="upload-box">
+                    <label for="pdf-input">Drop your PDF here or</label>
+                    <br>
+                    <input type="file" id="pdf-input" accept=".pdf" onchange="uploadPDF(this)">
+                    <button class="upload-btn" onclick="document.getElementById('pdf-input').click()">
+                        Choose file
+                    </button>
+                </div>
+                <div class="status" id="status"></div>
+            </div>
+
+            <div class="chat-box" id="chat-box">
+                <div class="empty-chat">Upload a PDF and ask a question</div>
+            </div>
+
+            <div class="input-section">
+                <input
+                    type="text"
+                    id="question-input"
+                    placeholder="Ask a question about your PDF..."
+                    onkeydown="if(event.key === 'Enter') sendMessage()"
+                />
+                <button class="send-btn" onclick="sendMessage()">Send</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const API = "http://127.0.0.1:8000"
+        let chatHistories = {} 
+        let chatMessages = {}  
+        let activePdf = null
+        let uploadedPdfs = []
+
+        // upload pdf
+        async function uploadPDF(input) {
+            const file = input.files[0]
+            if (!file) return
+
+            setStatus("loading", `Uploading ${file.name}...`)
+
+            const formData = new FormData()
+            formData.append("file", file)
+
+            try {
+                const response = await fetch(`${API}/upload`, {
+                    method: "POST",
+                    body: formData
+                })
+
+                const data = await response.json()
+
+                if (response.ok) {
+                    setStatus("success", `${file.name} uploaded — ${data.pages} pages, ${data.chunks} chunks`)
+                    uploadedPdfs.push(data)
+                    renderPdfList()
+                    switchPdf(data)   // auto switch to new pdf
+                } else {
+                    setStatus("error", "Upload failed. Try again.")
+                }
+            } catch (error) {
+                setStatus("error", "Could not connect to server. Is it running?")
+            }
+        }
+
+        // render pdf list in sidebar
+        function renderPdfList() {
+            const list = document.getElementById("pdf-list")
+
+            if (uploadedPdfs.length === 0) {
+                list.innerHTML = '<div class="no-pdfs">No PDFs uploaded yet</div>'
+                return
+            }
+
+            list.innerHTML = uploadedPdfs.map(pdf => `
+                <div
+                    class="pdf-item ${activePdf && activePdf.collection_name === pdf.collection_name ? 'active' : ''}"
+                    onclick="switchPdf(${JSON.stringify(pdf).replace(/"/g, '&quot;')})"
+                >
+                    <div class="pdf-name">${pdf.name}</div>
+                    <div class="pdf-meta">${pdf.pages} pages · ${pdf.chunks} chunks</div>
+                </div>
+            `).join("")
+        }
+
+        // switch active pdf
+        function switchPdf(pdf) {
+            if (activePdf) {
+                const chatBox = document.getElementById("chat-box")
+                chatMessages[activePdf.collection_name] = chatBox.innerHTML
+            }
+
+            activePdf = pdf
+
+            // initialize history and messages for this pdf if first time
+            if (!chatHistories[pdf.collection_name]) {
+                chatHistories[pdf.collection_name] = []
+            }
+            if (!chatMessages[pdf.collection_name]) {
+                chatMessages[pdf.collection_name] = `<div class="empty-chat">Chatting with: ${pdf.name}</div>`
+            }
+
+           // restore chat UI for this pdf
+            document.getElementById("chat-box").innerHTML = chatMessages[pdf.collection_name]
+            document.getElementById("active-label").textContent = pdf.name
+
+            // scroll to bottom
+            const chatBox = document.getElementById("chat-box")
+            chatBox.scrollTop = chatBox.scrollHeight
+
+            renderPdfList()
+        }
+
+        // send message
+        async function sendMessage() {
+            if (!activePdf) {
+                alert("Please upload and select a PDF first!")
+                return
+            }
+
+            const input = document.getElementById("question-input")
+            const question = input.value.trim()
+            if (!question) return
+
+            input.value = ""
+
+            addMessage("user", question)
+            addMessage("bot", "Thinking...", [])
+
+            try {
+                const response = await fetch(`${API}/chat`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        question: question,
+                        collection_name: activePdf.collection_name,
+                        chat_history: chatHistories[activePdf.collection_name] || []
+                    })
+                })
+
+                const data = await response.json()
+
+                removeLastBotMessage()
+                addMessage("bot", data.answer, data.sources)
+
+                chatHistories[activePdf.collection_name].push({ role: "user",      content: question    })
+                chatHistories[activePdf.collection_name].push({ role: "assistant",  content: data.answer })
+
+            } catch (error) {
+                removeLastBotMessage()
+                addMessage("bot", "Could not connect to server. Is it running?", [])
+            }
+        }
+
+        function addMessage(role, text, sources = []) {
+            const chatBox = document.getElementById("chat-box")
+
+            const emptyChat = chatBox.querySelector(".empty-chat")
+            if (emptyChat) emptyChat.remove()
+
+            const message = document.createElement("div")
+            message.className = `message ${role}`
+
+            if (role === "bot") {
+                message.innerHTML = `
+                    <div class="avatar">AI</div>
+                    <div class="bubble">
+                        ${text}
+                        ${sources && sources.length > 0 ? `
+                            <div class="sources">
+                                ${sources.map(s => `<span class="source-badge">${s}</span>`).join("")}
+                            </div>
+                        ` : ""}
+                    </div>
+                `
+            } else {
+                message.innerHTML = `<div class="bubble">${text}</div>`
+            }
+
+            chatBox.appendChild(message)
+            chatBox.scrollTop = chatBox.scrollHeight
+        }
+
+        function removeLastBotMessage() {
+            const chatBox = document.getElementById("chat-box")
+            const botMessages = chatBox.querySelectorAll(".message.bot")
+            if (botMessages.length > 0) {
+                botMessages[botMessages.length - 1].remove()
+            }
+        }
+
+        function setStatus(type, message) {
+            const status = document.getElementById("status")
+            status.className = `status ${type}`
+            status.textContent = message
+        }
+    </script>
+</body>
+</html>

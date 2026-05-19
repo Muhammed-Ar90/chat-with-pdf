@@ -1,17 +1,16 @@
 import os
+import requests
 from dotenv import load_dotenv
 from groq import Groq
 import chromadb
-#from sentence_transformers import SentenceTransformer
 
 load_dotenv()
 
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-#embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
 
 HF_API_KEY = os.getenv("HF_API_KEY")
-HF_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
+HF_URL = "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction"
 
 def get_embedding(text: str) -> list:
     response = requests.post(
@@ -38,11 +37,7 @@ def get_relevant_chunks(question: str, collection_name: str, n_results: int = 3)
         })
     return chunks
 
-
-def generate_answer(question: str, chunks: list, chat_history: list=[]) -> str:
-    """
-    Sends question + relevant chunks to Groq and returns the answer.
-    """
+def generate_answer(question: str, chunks: list, chat_history: list = []) -> str:
     context = ""
     for chunk in chunks:
         context += f"[Page {chunk['page']}]\n{chunk['text']}\n\n"
@@ -53,16 +48,13 @@ If the answer is not in the context, say "I could not find the answer in the doc
 
 Context:
 {context}"""
-    
+
     messages = [{"role": "system", "content": system_prompt}]
 
     for msg in chat_history:
         if msg.get("role") in ["user", "assistant"] and msg.get("content"):
-            messages.append({
-                "role": msg["role"],
-                "content": msg["content"]
-            })
-        
+            messages.append({"role": msg["role"], "content": msg["content"]})
+
     messages.append({"role": "user", "content": question})
 
     response = groq_client.chat.completions.create(
@@ -72,11 +64,7 @@ Context:
 
     return response.choices[0].message.content
 
-
-def ask(question: str, collection_name: str, chat_history: list=[]) -> dict:
-    """
-    Main function — takes a question and collection name, returns answer.
-    """
+def ask(question: str, collection_name: str, chat_history: list = []) -> dict:
     chunks = get_relevant_chunks(question, collection_name)
     answer = generate_answer(question, chunks, chat_history)
 
@@ -85,13 +73,3 @@ def ask(question: str, collection_name: str, chat_history: list=[]) -> dict:
         "answer": answer,
         "sources": [f"Page {chunk['page']}" for chunk in chunks]
     }
-
-
-# ---- Test it ----
-if __name__ == "__main__":
-    question = "Explain model evaluation."
-    result = ask(question)
-
-    print(f"Question: {result['question']}")
-    print(f"Answer: {result['answer']}")
-    print(f"Sources: {result['sources']}")
