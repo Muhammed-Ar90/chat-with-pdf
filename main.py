@@ -5,6 +5,8 @@ print("Starting imports...")
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 print("FastAPI imported...")
@@ -17,8 +19,6 @@ from query import ask
 
 print("Query imported...")
 
-os.makedirs("uploads", exist_ok=True)
-
 app = FastAPI()
 
 app.add_middleware(
@@ -27,6 +27,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# serve frontend
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+def root():
+    return FileResponse("static/index.html")
+
 
 # stores all uploaded PDFs in memory
 uploaded_pdfs = {}
@@ -38,9 +46,9 @@ class QuestionRequest(BaseModel):
     chat_history: list = []
 
 
-@app.get("/")
-def root():
-    return {"message": "PDF Chat API is running!"}
+#@app.get("/")
+#def root():
+   # return {"message": "PDF Chat API is running!"}
 
 
 @app.get("/pdfs")
