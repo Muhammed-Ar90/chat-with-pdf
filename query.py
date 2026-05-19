@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from groq import Groq
 import chromadb
-from sentence_transformers import SentenceTransformer
+#from sentence_transformers import SentenceTransformer
 
 load_dotenv()
 

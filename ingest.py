@@ -1,7 +1,7 @@
 import os
 import requests
 import fitz  # this is PyMuPDF
-from sentence_transformers import SentenceTransformer
+#from sentence_transformers import SentenceTransformer
 import chromadb
 
 def extract_text_from_pdf(pdf_path: str) -> list:
