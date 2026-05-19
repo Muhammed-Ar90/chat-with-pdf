@@ -1,9 +1,21 @@
 import os
+os.makedirs("uploads", exist_ok=True)
+
+print("Starting imports...")
+
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+print("FastAPI imported...")
+
 from ingest import extract_text_from_pdf, split_into_chunks, embed_chunks, store_in_chromadb
+
+print("Ingest imported...")
+
 from query import ask
+
+print("Query imported...")
 
 os.makedirs("uploads", exist_ok=True)
 
