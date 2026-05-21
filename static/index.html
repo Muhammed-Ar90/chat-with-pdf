@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with PDF</title>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #f7f5f2;
@@ -46,7 +46,7 @@
         }
 
         .sidebar-brand {
-            padding: 22px 18px 18px;
+            padding: 18px 18px 14px;
             border-bottom: 1px solid var(--border);
             flex-shrink: 0;
         }
@@ -146,8 +146,9 @@
         }
 
         .header-title {
-            font-family: 'Instrument Serif', serif;
+            font-family: 'Josefin Sans', sans-serif;
             font-size: 17px;
+            font-weight: 600;
             color: var(--text);
         }
 
@@ -353,6 +354,30 @@
 
         .send-btn:hover { opacity: 0.88; }
 
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 10px 10px 4px;
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 8px 10px;
+            border-radius: 7px;
+            font-size: 12.5px;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            color: var(--muted);
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .nav-btn:hover { background: var(--bg); color: var(--text); }
+        .nav-btn.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+
         /* ── MOBILE OVERLAY SIDEBAR ── */
         .sidebar-overlay {
             display: none;
@@ -420,14 +445,29 @@
         <!-- sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-brand">
-                <div class="brand-name">Chat with <em>PDF</em></div>
-                <div class="brand-sub">AI-powered document Q&amp;A</div>
+                <img src="/static/logo.svg" alt="Chat with PDF" style="width: 180px; height: auto;">
+            </div>
+            <div class="sidebar-nav">
+                <button class="nav-btn active" onclick="showSection('pdfs')"> Your PDFs</button>
+                <button class="nav-btn" onclick="showSection('about')">About </button>
             </div>
             <div class="sidebar-label">Your PDFs</div>
             <div class="pdf-list" id="pdf-list">
                 <div class="no-pdfs">
                     📄<br>No PDFs uploaded yet.<br>Upload one to get started.
                 </div>
+            </div>
+            <div class="about-section" id="about-section" style="display:none; padding: 18px; font-size: 13px; color: var(--text); line-height: 1.7;">
+                <h3 style="font-family: 'Josefin Sans', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--accent); letter-spacing: 0.05em;">ABOUT</h3>
+                <p><strong>Chat with PDF</strong> is an AI-powered document assistant that lets you have a conversation with any PDF file.</p>
+                <br>
+                <p>Simply upload a PDF, and ask any question about its content. The app finds the most relevant sections and gives you accurate, context-aware answers instantly.</p>
+                <br>
+                <p style="font-size: 11.5px; color: var(--muted);">Built with FastAPI, ChromaDB, HuggingFace, and Groq.</p>
+                <br>
+                <p style="font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;">
+                    ✦ Created by <strong style="color: var(--text);">Muhammed Abdul Razak</strong>
+                </p>
             </div>
         </div>
 
@@ -444,7 +484,7 @@
                             <line x1="3" y1="18" x2="21" y2="18"/>
                         </svg>
                     </button>
-                    <span class="header-title">Chat with PDF</span>
+                    <span class="header-title">CHAT WITH <span style="color: var(--accent);">PDF</span></span>
                 </div>
                 <span class="active-pdf-label" id="active-label">No PDF selected</span>
             </div>
@@ -615,6 +655,18 @@
             const s = document.getElementById("status")
             s.className = `status ${type}`
             s.textContent = message
+        }
+        function showSection(section) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'))
+            event.target.classList.add('active')
+
+            if (section === 'pdfs') {
+                document.getElementById('pdf-list').style.display = 'flex'
+                document.getElementById('about-section').style.display = 'none'
+            } else {
+                document.getElementById('pdf-list').style.display = 'none'
+                document.getElementById('about-section').style.display = 'block'
+            }
         }
     </script>
 </body>

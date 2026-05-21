@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 100">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&amp;family=Raleway:wght@300;400&amp;display=swap');
+      .f1 { font-family: 'Playfair Display', Georgia, serif; }
+      .f2 { font-family: 'Raleway', Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <!-- open book left page -->
+  <path d="M56 8 Q44 9 37 12 L37 62 Q44 59 56 58 Z" fill="#fdf1ee" stroke="#c84b31" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- open book right page -->
+  <path d="M56 8 Q68 9 75 12 L75 62 Q68 59 56 58 Z" fill="#fdf1ee" stroke="#c84b31" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- spine -->
+  <line x1="56" y1="8" x2="56" y2="58" stroke="#c84b31" stroke-width="1.5"/>
+  <!-- left page lines -->
+  <line x1="41" y1="22" x2="53" y2="21" stroke="#c84b31" stroke-width="1" stroke-linecap="round" opacity="0.45"/>
+  <line x1="41" y1="30" x2="53" y2="29" stroke="#c84b31" stroke-width="1" stroke-linecap="round" opacity="0.45"/>
+  <line x1="41" y1="38" x2="51" y2="37" stroke="#c84b31" stroke-width="1" stroke-linecap="round" opacity="0.45"/>
+  <!-- right page lines -->
+  <line x1="59" y1="21" x2="71" y2="22" stroke="#c84b31" stroke-width="1" stroke-linecap="round" opacity="0.45"/>
+  <line x1="59" y1="29" x2="71" y2="30" stroke="#c84b31" stroke-width="1" stroke-linecap="round" opacity="0.45"/>
+  <line x1="59" y1="37" x2="69" y2="38" stroke="#c84b31" stroke-width="1" stroke-linecap="round" opacity="0.45"/>
+
+  <!-- chat bubble -->
+  <rect x="65" y="0" width="28" height="20" rx="6" fill="#c84b31"/>
+  <polygon points="69,20 65,28 76,20" fill="#c84b31"/>
+  <circle cx="72" cy="10" r="2" fill="white"/>
+  <circle cx="79" cy="10" r="2" fill="white"/>
+  <circle cx="86" cy="10" r="2" fill="white"/>
+
+  <!-- "CHAT WITH" -->
+  <text x="96" y="38" class="f2" font-size="16" font-weight="300" fill="#1a1714" letter-spacing="3">CHAT WITH</text>
+  <!-- "PDF" -->
+  <text x="94" y="72" class="f1" font-size="30" font-weight="600" fill="#c84b31" letter-spacing="1.5">PDF</text>
+  <!-- accent line -->
+  <line x1="96" y1="78" x2="166" y2="78" stroke="#c84b31" stroke-width="0.8" opacity="0.35"/>
+  <!-- tagline -->
+  <text x="97" y="91" class="f2" font-size="6.5" font-weight="400" fill="#8a847c" letter-spacing="0.1em">AI-POWERED DOCUMENT Q&amp;A</text>
+</svg>
