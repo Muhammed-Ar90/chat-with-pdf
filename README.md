@@ -4,6 +4,8 @@ An AI-powered document assistant that lets you have a natural conversation with 
 
 🔗 **Live Demo:** [chat-with-pdf-doa4.onrender.com](https://chat-with-pdf-doa4.onrender.com)
 
+> ⏳ **Note:** The free tier on Render spins down after 15 minutes of inactivity. The first request after inactivity may take **30–60 seconds** to load. This is normal — just wait a moment and it will respond.
+
 ---
 
 ## Features
